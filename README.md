@@ -430,7 +430,7 @@ Health check endpoint.
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/stocky-assignment.git
+git clone https://github.com/rnt07s/Stocky---Stock-Rewards-Platform
 cd stocky-assignment
 ```
 
@@ -761,14 +761,6 @@ When user `alice` receives 2.5 shares of TCS @ ₹3500:
 ## 📝 License
 
 This project is created as an assignment and is available for educational purposes.
-
----
-
-## 👤 Author
-
-**Your Name**
-- GitHub: [@yourusername](https://github.com/yourusername)
-- Email: your.email@example.com
 
 ---
 
