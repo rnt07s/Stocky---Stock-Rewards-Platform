@@ -1,8 +1,8 @@
 # Stocky - Stock Rewards Platform
 
-A robust REST API system that enables users to earn shares of Indian stocks (NSE/BSE) as rewards for various actions. Built with Go, Gin, and PostgreSQL, featuring double-entry bookkeeping, hourly price updates, and comprehensive edge case handling.
+A REST API system that enables users to earn shares of Indian stocks (NSE/BSE) as rewards for various actions. Built with Go, Gin, and PostgreSQL, featuring double-entry bookkeeping, hourly price updates, and comprehensive edge case handling.
 
-## 📋 Table of Contents
+## Table of Contents
 
 - [Features](#features)
 - [Architecture](#architecture)
@@ -12,21 +12,17 @@ A robust REST API system that enables users to earn shares of Indian stocks (NSE
 - [Edge Cases & Solutions](#edge-cases--solutions)
 - [Scaling Considerations](#scaling-considerations)
 
----
+## Features
 
-## ✨ Features
+- Stock Rewards System - Award fractional shares to users with full transparency
+- Double-Entry Ledger - Track all financial transactions (cash, fees, stock inventory)
+- Hourly Price Updates - Mock stock price service with configurable intervals
+- Idempotency - Prevent duplicate reward events using idempotency keys
+- Portfolio Management - Real-time INR valuation of user holdings
+- Fee Tracking - Brokerage, STT, GST, Exchange, and SEBI fees
+- Corporate Actions - Support for stock splits, mergers, and delisting
 
-- **Stock Rewards System**: Award fractional shares to users with full transparency
-- **Double-Entry Ledger**: Track all financial transactions (cash, fees, stock inventory)
-- **Hourly Price Updates**: Mock stock price service with configurable intervals
-- **Idempotency**: Prevent duplicate reward events using idempotency keys
-- **Portfolio Management**: Real-time INR valuation of user holdings
-- **Fee Tracking**: Brokerage, STT, GST, Exchange, and SEBI fees
-- **Corporate Actions**: Support for stock splits, mergers, and delisting
-
----
-
-## 🏗️ Architecture
+## Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -84,9 +80,7 @@ stocky/
 └── README.md
 ```
 
----
-
-## 🗄️ Database Schema
+## Database Schema
 
 ### 1. **users**
 Stores user information.
@@ -143,8 +137,6 @@ Records every reward transaction.
 
 **Indexes**: `user_id`, `stock_symbol`, `rewarded_at`, `idempotency_key`
 
----
-
 ### 4. **user_holdings** (Aggregated)
 Current holdings per user per stock.
 
@@ -159,8 +151,6 @@ Current holdings per user per stock.
 
 **Unique constraint**: `(user_id, stock_symbol)`
 
----
-
 ### 5. **stock_prices**
 Hourly price snapshots.
 
@@ -173,8 +163,6 @@ Hourly price snapshots.
 | source       | VARCHAR(50)     | Data source (mock/nse/bse) |
 
 **Unique constraint**: `(stock_symbol, timestamp)`
-
----
 
 ### 6. **ledger_entries** (Double-Entry Bookkeeping)
 Tracks all financial transactions.
@@ -192,8 +180,6 @@ Tracks all financial transactions.
 | created_at     | TIMESTAMP       | Creation timestamp                   |
 
 **Constraint**: Either debit or credit must be > 0 (not both)
-
----
 
 ### 7. **stock_events**
 Tracks corporate actions (splits, mergers, delisting).
@@ -213,15 +199,11 @@ Tracks corporate actions (splits, mergers, delisting).
 | processed_at        | TIMESTAMP       | Processing timestamp            |
 | created_at          | TIMESTAMP       | Creation timestamp              |
 
----
-
-## 🌐 API Endpoints
+## API Endpoints
 
 ### Base URL: `http://localhost:8080/api/v1`
 
----
-
-### 1. **POST /reward**
+### 1. POST /reward
 Award shares to a user.
 
 **Request Body:**
@@ -263,11 +245,9 @@ Award shares to a user.
 }
 ```
 
-**Idempotency**: Sending the same `idempotency_key` returns the original event without creating duplicates.
+Note: Sending the same `idempotency_key` returns the original event without creating duplicates.
 
----
-
-### 2. **GET /today-stocks/:userId**
+### 2. GET /today-stocks/:userId
 Get all stock rewards for a user today.
 
 **Example:** `GET /today-stocks/priya_patel`
@@ -300,9 +280,7 @@ Get all stock rewards for a user today.
 }
 ```
 
----
-
-### 3. **GET /historical-inr/:userId**
+### 3. GET /historical-inr/:userId
 Get INR value of rewards for all past days (excluding today).
 
 **Example:** `GET /historical-inr/amit_kumar`
@@ -328,9 +306,7 @@ Get INR value of rewards for all past days (excluding today).
 }
 ```
 
----
-
-### 4. **GET /stats/:userId**
+### 4. GET /stats/:userId
 Get user statistics including today's rewards and portfolio value.
 
 **Example:** `GET /stats/neha_singh`
@@ -359,9 +335,7 @@ Get user statistics including today's rewards and portfolio value.
 }
 ```
 
----
-
-### 5. **GET /portfolio/:userId** (Bonus)
+### 5. GET /portfolio/:userId (Bonus)
 Get complete portfolio with profit/loss analysis.
 
 **Example:** `GET /portfolio/rohan_gupta`
@@ -404,9 +378,7 @@ Get complete portfolio with profit/loss analysis.
 }
 ```
 
----
-
-### 6. **GET /health**
+### 6. GET /health
 Health check endpoint.
 
 **Response (200 OK):**
@@ -417,9 +389,7 @@ Health check endpoint.
 }
 ```
 
----
-
-## 🚀 Setup Instructions
+## Setup Instructions
 
 ### Prerequisites
 
@@ -496,9 +466,7 @@ go run cmd/server/main.go
 
 Server starts on `http://localhost:8080`
 
----
-
-## 🧪 Testing the API
+## Testing the API
 
 ### Using cURL
 
@@ -525,20 +493,18 @@ curl http://localhost:8080/api/v1/today-stocks/ankit_verma
 curl http://localhost:8080/api/v1/portfolio/ankit_verma
 ```
 
----
+## Edge Cases & Solutions
 
-## 🛡️ Edge Cases & Solutions
+### 1. Duplicate Reward Events / Replay Attacks
 
-### 1. **Duplicate Reward Events / Replay Attacks**
+Problem: API might receive duplicate requests due to network retries.
 
-**Problem**: API might receive duplicate requests due to network retries.
-
-**Solution**: 
+Solution: 
 - Mandatory `idempotency_key` field in POST /reward
 - Database unique constraint on `idempotency_key`
 - Returns existing event if key already exists (HTTP 201)
 
-**Implementation**:
+Implementation:
 ```go
 existingEvent, _ := repo.GetRewardEventByIdempotencyKey(req.IdempotencyKey)
 if existingEvent != nil {
@@ -546,19 +512,17 @@ if existingEvent != nil {
 }
 ```
 
----
+### 2. Stock Splits
 
-### 2. **Stock Splits**
+Problem: 1:10 split means 1 share becomes 10 shares.
 
-**Problem**: 1:10 split means 1 share becomes 10 shares.
-
-**Solution**:
+Solution:
 - `stock_events` table tracks splits with `split_ratio_old` and `split_ratio_new`
 - Background job processes unprocessed events
 - Updates `user_holdings.total_shares` proportionally
 - Adjusts `average_price` inversely
 
-**Example**:
+Example:
 ```sql
 -- Before split: 10 shares @ ₹3500 = ₹35,000
 -- After 1:2 split: 20 shares @ ₹1750 = ₹35,000
@@ -568,36 +532,30 @@ SET total_shares = total_shares * 2,
 WHERE stock_symbol = 'TCS';
 ```
 
----
+### 3. Stock Mergers
 
-### 3. **Stock Mergers**
+Problem: Company A merges into Company B with conversion ratio.
 
-**Problem**: Company A merges into Company B with conversion ratio.
-
-**Solution**:
+Solution:
 - Record merger event in `stock_events`
 - Convert holdings: `holding_B = holding_A × conversion_ratio`
 - Mark original stock inactive
 
----
+### 4. Delisting
 
-### 4. **Delisting**
+Problem: Stock is delisted from exchange.
 
-**Problem**: Stock is delisted from exchange.
-
-**Solution**:
+Solution:
 - Set `stocks.is_active = false`
 - Prevent new rewards for delisted stocks
 - Retain historical data for compliance
 - Portfolio shows last known price with warning
 
----
+### 5. Rounding Errors in INR Valuation
 
-### 5. **Rounding Errors in INR Valuation**
+Problem: Fractional shares × fractional prices cause precision errors.
 
-**Problem**: Fractional shares × fractional prices cause precision errors.
-
-**Solution**:
+Solution:
 - Use `NUMERIC(18, 6)` for shares (6 decimals)
 - Use `NUMERIC(18, 4)` for INR (4 decimals = paise level)
 - Round calculations explicitly:
@@ -609,17 +567,15 @@ func roundToDecimal(value float64, decimals int) float64 {
 }
 ```
 
----
+### 6. Price API Downtime / Stale Data
 
-### 6. **Price API Downtime / Stale Data**
+Problem: External price API fails or returns stale data.
 
-**Problem**: External price API fails or returns stale data.
-
-**Solution**:
-- **Fallback**: Use last known price from `stock_prices` table
-- **Staleness check**: Flag prices older than 2 hours
-- **Circuit breaker**: Retry with exponential backoff
-- **Manual override**: Admin can set prices manually
+Solution:
+- Fallback: Use last known price from `stock_prices` table
+- Staleness check: Flag prices older than 2 hours
+- Circuit breaker: Retry with exponential backoff
+- Manual override: Admin can set prices manually
 
 ```go
 price, err := priceService.GetCurrentPrice(symbol)
@@ -630,18 +586,16 @@ if err != nil {
 }
 ```
 
----
+### 7. Adjustments/Refunds of Rewards
 
-### 7. **Adjustments/Refunds of Rewards**
+Problem: Need to revoke incorrectly given rewards.
 
-**Problem**: Need to revoke incorrectly given rewards.
-
-**Solution**:
+Solution:
 - Create negative reward event (shares_quantity < 0 allowed for adjustments)
 - Update `user_holdings` accordingly
 - Ledger entries reflect reversal (debit/credit swapped)
 
-**Example:**
+Example:
 ```json
 {
   "idempotency_key": "refund-rajesh-20250122-001",
@@ -652,22 +606,20 @@ if err != nil {
 }
 ```
 
----
+## Scaling Considerations
 
-## 📈 Scaling Considerations
+### 1. Database Optimization
 
-### 1. **Database Optimization**
+- Partitioning: Partition `reward_events` by `rewarded_at` (monthly)
+- Read replicas: Route reads to replicas, writes to primary
+- Connection pooling: Already configured (max 25 open connections)
+- Indexes: Critical columns indexed (see schema)
 
-- **Partitioning**: Partition `reward_events` by `rewarded_at` (monthly)
-- **Read replicas**: Route reads to replicas, writes to primary
-- **Connection pooling**: Already configured (max 25 open connections)
-- **Indexes**: Critical columns indexed (see schema)
+### 2. Caching
 
-### 2. **Caching**
-
-- **Redis**: Cache current stock prices (TTL: 5 minutes)
-- **User portfolios**: Cache with invalidation on new rewards
-- **Leaderboards**: Pre-compute daily/weekly
+- Redis: Cache current stock prices (TTL: 5 minutes)
+- User portfolios: Cache with invalidation on new rewards
+- Leaderboards: Pre-compute daily/weekly
 
 ```go
 // Pseudocode
@@ -678,32 +630,32 @@ if price == nil {
 }
 ```
 
-### 3. **Async Processing**
+### 3. Async Processing
 
-- **Message queue**: Use RabbitMQ/Kafka for reward processing
-- **Worker pool**: Dedicated workers for fee calculations, ledger entries
-- **Batch updates**: Update stock prices in bulk
+- Message queue: Use RabbitMQ/Kafka for reward processing
+- Worker pool: Dedicated workers for fee calculations, ledger entries
+- Batch updates: Update stock prices in bulk
 
-### 4. **Horizontal Scaling**
+### 4. Horizontal Scaling
 
-- **Stateless servers**: Multiple API instances behind load balancer
-- **Database sharding**: Shard by `user_id` for large user base
-- **Microservices**: Split into services (rewards, portfolio, analytics)
+- Stateless servers: Multiple API instances behind load balancer
+- Database sharding: Shard by `user_id` for large user base
+- Microservices: Split into services (rewards, portfolio, analytics)
 
-### 5. **Monitoring & Observability**
+### 5. Monitoring & Observability
 
-- **Metrics**: Prometheus + Grafana
+- Metrics: Prometheus + Grafana
   - Request latency (p50, p95, p99)
   - Error rates
   - Database query times
-- **Logging**: Structured logs (Logrus → ELK stack)
-- **Alerting**: PagerDuty for critical failures
+- Logging: Structured logs (Logrus to ELK stack)
+- Alerting: PagerDuty for critical failures
 
-### 6. **Rate Limiting**
+### 6. Rate Limiting
 
-- **Per-user limits**: 100 requests/minute
-- **Per-IP limits**: 1000 requests/minute
-- **Token bucket algorithm**
+- Per-user limits: 100 requests/minute
+- Per-IP limits: 1000 requests/minute
+- Token bucket algorithm
 
 ```go
 // Pseudocode
@@ -712,28 +664,24 @@ if !rateLimiter.Allow(userID) {
 }
 ```
 
-### 7. **Load Testing Benchmarks**
+### 7. Load Testing Benchmarks
 
 Expected performance on moderate hardware (4 CPU, 8GB RAM):
 
-- **POST /reward**: 500 req/s
-- **GET /portfolio**: 2000 req/s (with caching)
-- **Price updates**: 10,000 stocks in <5 seconds
+- POST /reward: 500 req/s
+- GET /portfolio: 2000 req/s (with caching)
+- Price updates: 10,000 stocks in under 5 seconds
 
----
+## Security Considerations
 
-## 🔒 Security Considerations
+1. Authentication: Add JWT-based auth middleware
+2. Authorization: Ensure users can only access their own data
+3. Input validation: Validate all inputs (already using Gin binding)
+4. SQL injection: Using parameterized queries throughout
+5. HTTPS: Deploy behind reverse proxy (Nginx) with TLS
+6. Secrets management: Use vault (e.g., HashiCorp Vault)
 
-1. **Authentication**: Add JWT-based auth middleware
-2. **Authorization**: Ensure users can only access their own data
-3. **Input validation**: Validate all inputs (already using Gin binding)
-4. **SQL injection**: Using parameterized queries throughout
-5. **HTTPS**: Deploy behind reverse proxy (Nginx) with TLS
-6. **Secrets management**: Use vault (e.g., HashiCorp Vault)
-
----
-
-## 📊 Double-Entry Ledger Example
+## Double-Entry Ledger Example
 
 When user `vikram_joshi` receives 2.5 shares of TCS @ ₹3500:
 
@@ -744,11 +692,9 @@ When user `vikram_joshi` receives 2.5 shares of TCS @ ₹3500:
 | `fees_expense`     | -     | 30.72     | 0          | Brokerage, STT, GST, etc.    |
 | `cash_outflow`     | -     | 0         | 30.72      | Cash paid for fees           |
 
-**Total Debit = Total Credit = ₹8,780.72** ✅
+Total Debit = Total Credit = ₹8,780.72
 
----
-
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create feature branch (`git checkout -b feature/amazing-feature`)
