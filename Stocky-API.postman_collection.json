@@ -1,0 +1,96 @@
+{
+	"info": {
+		"name": "Stocky API",
+		"description": "Stock Rewards Platform API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Health Check",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/health",
+					"host": ["{{base_url}}"],
+					"path": ["health"]
+				}
+			}
+		},
+		{
+			"name": "Create Reward",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"idempotency_key\": \"reward-{{$randomUUID}}\",\n  \"user_id\": \"user123\",\n  \"stock_symbol\": \"TCS\",\n  \"shares_quantity\": 2.5,\n  \"reason\": \"onboarding_bonus\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v1/reward",
+					"host": ["{{base_url}}"],
+					"path": ["api", "v1", "reward"]
+				}
+			}
+		},
+		{
+			"name": "Get Today Stocks",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/v1/today-stocks/user123",
+					"host": ["{{base_url}}"],
+					"path": ["api", "v1", "today-stocks", "user123"]
+				}
+			}
+		},
+		{
+			"name": "Get Historical INR",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/v1/historical-inr/user123",
+					"host": ["{{base_url}}"],
+					"path": ["api", "v1", "historical-inr", "user123"]
+				}
+			}
+		},
+		{
+			"name": "Get User Stats",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/v1/stats/user123",
+					"host": ["{{base_url}}"],
+					"path": ["api", "v1", "stats", "user123"]
+				}
+			}
+		},
+		{
+			"name": "Get Portfolio",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/v1/portfolio/user123",
+					"host": ["{{base_url}}"],
+					"path": ["api", "v1", "portfolio", "user123"]
+				}
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080"
+		}
+	]
+}

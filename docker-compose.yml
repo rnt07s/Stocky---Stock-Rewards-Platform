@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: stocky-postgres
+    environment:
+      POSTGRES_USER: stocky_user
+      POSTGRES_PASSWORD: stocky_password
+      POSTGRES_DB: assignment
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./migrations:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U stocky_user -d assignment"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  stocky-api:
+    build: .
+    container_name: stocky-api
+    environment:
+      PORT: 8080
+      GIN_MODE: release
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: stocky_user
+      DB_PASSWORD: stocky_password
+      DB_NAME: assignment
+      DB_SSLMODE: disable
+      PRICE_UPDATE_INTERVAL_MINUTES: 60
+      BROKERAGE_FEE_BP: 5
+      STT_FEE_BP: 25
+      GST_FEE_BP: 18
+      EXCHANGE_FEE_BP: 3
+      SEBI_FEE_BP: 1
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
