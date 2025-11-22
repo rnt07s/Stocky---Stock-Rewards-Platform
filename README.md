@@ -227,12 +227,12 @@ Award shares to a user.
 **Request Body:**
 ```json
 {
-  "idempotency_key": "reward-user123-20250122-001",
-  "user_id": "user123",
+  "idempotency_key": "reward-ravi-20250122-001",
+  "user_id": "ravi_sharma",
   "stock_symbol": "TCS",
   "shares_quantity": 2.5,
   "reason": "referral_bonus",
-  "metadata": "{\"referral_code\": \"REF123\"}",
+  "metadata": "{\"referral_code\": \"REF456\"}",
   "rewarded_at": "2025-01-22T10:30:00Z"
 }
 ```
@@ -243,8 +243,8 @@ Award shares to a user.
   "success": true,
   "data": {
     "id": 1,
-    "idempotency_key": "reward-user123-20250122-001",
-    "user_id": "user123",
+    "idempotency_key": "reward-ravi-20250122-001",
+    "user_id": "ravi_sharma",
     "stock_symbol": "TCS",
     "shares_quantity": 2.5,
     "price_per_share": 3521.45,
@@ -270,13 +270,13 @@ Award shares to a user.
 ### 2. **GET /today-stocks/:userId**
 Get all stock rewards for a user today.
 
-**Example:** `GET /today-stocks/user123`
+**Example:** `GET /today-stocks/priya_patel`
 
 **Response (200 OK):**
 ```json
 {
   "success": true,
-  "user_id": "user123",
+  "user_id": "priya_patel",
   "date": "2025-01-22",
   "count": 3,
   "data": [
@@ -305,14 +305,14 @@ Get all stock rewards for a user today.
 ### 3. **GET /historical-inr/:userId**
 Get INR value of rewards for all past days (excluding today).
 
-**Example:** `GET /historical-inr/user123`
+**Example:** `GET /historical-inr/amit_kumar`
 
 **Response (200 OK):**
 ```json
 {
   "success": true,
   "data": {
-    "user_id": "user123",
+    "user_id": "amit_kumar",
     "daily_inr": [
       {
         "date": "2025-01-21",
@@ -333,14 +333,14 @@ Get INR value of rewards for all past days (excluding today).
 ### 4. **GET /stats/:userId**
 Get user statistics including today's rewards and portfolio value.
 
-**Example:** `GET /stats/user123`
+**Example:** `GET /stats/neha_singh`
 
 **Response (200 OK):**
 ```json
 {
   "success": true,
   "data": {
-    "user_id": "user123",
+    "user_id": "neha_singh",
     "today_rewards": [
       {
         "stock_symbol": "TCS",
@@ -364,13 +364,13 @@ Get user statistics including today's rewards and portfolio value.
 ### 5. **GET /portfolio/:userId** (Bonus)
 Get complete portfolio with profit/loss analysis.
 
-**Example:** `GET /portfolio/user123`
+**Example:** `GET /portfolio/rohan_gupta`
 
 **Response (200 OK):**
 ```json
 {
   "success": true,
-  "user_id": "user123",
+  "user_id": "rohan_gupta",
   "summary": {
     "total_value": 45678.90,
     "total_cost": 42350.25,
@@ -507,8 +507,8 @@ Server starts on `http://localhost:8080`
 curl -X POST http://localhost:8080/api/v1/reward \
   -H "Content-Type: application/json" \
   -d '{
-    "idempotency_key": "reward-alice-20250122-001",
-    "user_id": "alice",
+    "idempotency_key": "reward-ankit-20250122-001",
+    "user_id": "ankit_verma",
     "stock_symbol": "TCS",
     "shares_quantity": 2.5,
     "reason": "onboarding_bonus"
@@ -517,12 +517,12 @@ curl -X POST http://localhost:8080/api/v1/reward \
 
 **Get today's stocks:**
 ```bash
-curl http://localhost:8080/api/v1/today-stocks/alice
+curl http://localhost:8080/api/v1/today-stocks/ankit_verma
 ```
 
 **Get portfolio:**
 ```bash
-curl http://localhost:8080/api/v1/portfolio/alice
+curl http://localhost:8080/api/v1/portfolio/ankit_verma
 ```
 
 ---
@@ -641,11 +641,11 @@ if err != nil {
 - Update `user_holdings` accordingly
 - Ledger entries reflect reversal (debit/credit swapped)
 
-**Example**:
+**Example:**
 ```json
 {
-  "idempotency_key": "refund-user123-20250122-001",
-  "user_id": "user123",
+  "idempotency_key": "refund-rajesh-20250122-001",
+  "user_id": "rajesh_mehta",
   "stock_symbol": "TCS",
   "shares_quantity": -2.5,
   "reason": "correction"
@@ -735,7 +735,7 @@ Expected performance on moderate hardware (4 CPU, 8GB RAM):
 
 ## 📊 Double-Entry Ledger Example
 
-When user `alice` receives 2.5 shares of TCS @ ₹3500:
+When user `vikram_joshi` receives 2.5 shares of TCS @ ₹3500:
 
 | Account Type       | Stock | Debit (₹) | Credit (₹) | Description                  |
 |--------------------|-------|-----------|------------|------------------------------|
